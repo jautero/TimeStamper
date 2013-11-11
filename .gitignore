@@ -7,3 +7,6 @@ virtualenv*
 
 #Ignore testenv
 testenv
+
+#ignore test results
+nosetests.xml

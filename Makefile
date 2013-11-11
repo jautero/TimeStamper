@@ -49,7 +49,7 @@ testenv-clean:
 dist-clean: virtualenv-clean testenv-clean
 	-rm nosetests.xml
 
-nosetests.xml: testenv/bin/nosetests
+nosetests.xml: testenv/bin/nosetests src/*.py
 	testenv/bin/nosetests --with-xunit src/
 
 test: nosetests.xml
