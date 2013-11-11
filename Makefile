@@ -18,6 +18,7 @@ VIRTUALENV_VERSION := 1.10
 VIRTUALENV_TAR := virtualenv-$(VIRTUALENV_VERSION).tar.gz
 VIRTUALENV_BASEURL := https://pypi.python.org/packages/source/v/virtualenv
 
+all: test
 
 virtualenv: virtualenv-$(VIRTUALENV_VERSION)
 	-rm $@
@@ -36,6 +37,7 @@ virtualenv-clean:
 
 testenv: virtualenv
 	python virtualenv/virtualenv.py testenv
+	testenv/bin/easy_install unittest-xml-reporting
 
 .PHONY: testenv-clean
 
@@ -43,3 +45,6 @@ testenv-clean:
 	-rm -rf testenv
 	
 dist-clean: virtualenv-clean testenv-clean
+
+test: testenv src/*.py
+	testenv/bin/python src/*Test.py
