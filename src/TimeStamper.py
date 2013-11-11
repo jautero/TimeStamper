@@ -18,8 +18,18 @@ import time
 
 class Stamper:
     """Stamper class"""
+    threshold=30*60
     def __init__(self):
-            pass
-    def stamp(self,timestamp=None):
+            self.starttime=None
+            self.endtime=None
+            self.timeranges=[]
+    def addStamp(self,timestamp=None):
         if timestamp==None:
             timestamp=time.time()
+        if not self.starttime:
+            self.starttime=timestamp
+            self.endtime=timestamp
+        if timestamp < self.endtime+self.threshold:
+            self.endtime=timestamp
+        else:
+            self.timeranges.append((self.starttime,self.endtime))
