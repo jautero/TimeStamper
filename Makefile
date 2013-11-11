@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-# TimeStamperTest.py -- Unit Tests for TimeStamper
+# Makefile for TimeStamper
 #
-# Copyright (C) 2013 Juha Autero <jautero@iki.fi>
+# (c) Copyright 2013 Juha Autero. All Rights Reserved. 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,14 +14,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
-import TimeStamper
-
-class TimeStamperUnitTest(unittest.TestCase):
-    """TimeStamper unit tests"""
-    def test_create(self):
-        teststamper=TimeStamper.Stamper()
-
-if __name__ == '__main__':
-    import xmlrunner
-    unittest.main(testRunner=xmlrunner.XMLTestRunner(output='xmlreports'))
