@@ -35,3 +35,6 @@ class Stamper:
             self.timeranges.append((self.starttime,self.endtime))
             self.starttime=timestamp
             self.endtime=timestamp
+    def addStamps(self,stampiterator):
+        for stamp in stampiterator:
+            self.addStamp(stamp)

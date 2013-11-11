@@ -59,3 +59,9 @@ class TimeStamperUnitTest(unittest.TestCase):
         self.assert_(teststamper.endtime==timestamp3, 'endtime is timestamp')
         self.assert_(len(teststamper.timeranges)==1, 'old period is added to list')
         self.assert_(teststamper.timeranges[0] == (timestamp,timestamp2), 'verify the item')
+    def test_addstamplist(self):
+        teststamper=TimeStamper.Stamper()
+        teststamper.addStamps([1000,1100,1200,1300,3200,3250,5500,6000])
+        self.assert_(teststamper.starttime == 5500, 'current range is the last timestamps')
+        self.assert_(teststamper.endtime == 6000, 'current range is the last timestamps')
+        self.assert_(teststamper.timeranges == [(1000,1300),(3200,3250)], 'rest of the ranges are in list')
