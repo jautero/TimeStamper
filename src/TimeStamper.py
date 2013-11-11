@@ -33,3 +33,5 @@ class Stamper:
             self.endtime=timestamp
         else:
             self.timeranges.append((self.starttime,self.endtime))
+            self.starttime=timestamp
+            self.endtime=timestamp

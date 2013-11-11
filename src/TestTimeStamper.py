@@ -36,5 +36,26 @@ class TimeStamperUnitTest(unittest.TestCase):
         self.assert_(teststamper.endtime==timestamp, 'endtime is timestamp')
         timestamp2=20
         teststamper.addStamp(timestamp2)
-        self.assert_(teststamper.starttime==timestamp, 'starttime is timestamp')
+        self.assert_(teststamper.starttime==timestamp, 'starttime is not updated')
         self.assert_(teststamper.endtime==timestamp2, 'endtime is timestamp')
+        timestamp2=30
+        teststamper.addStamp(timestamp2)
+        self.assert_(teststamper.starttime==timestamp, 'starttime is not updated')
+        self.assert_(teststamper.endtime==timestamp2, 'endtime is timestamp')
+
+    def test_createperiod(self):
+        teststamper=TimeStamper.Stamper()
+        timestamp=10
+        teststamper.addStamp(timestamp)
+        self.assert_(teststamper.starttime==timestamp, 'starttime is timestamp')
+        self.assert_(teststamper.endtime==timestamp, 'endtime is timestamp')
+        timestamp2=20
+        teststamper.addStamp(timestamp2)
+        self.assert_(teststamper.starttime==timestamp, 'starttime is not updated')
+        self.assert_(teststamper.endtime==timestamp2, 'endtime is timestamp')
+        timestamp3=4000
+        teststamper.addStamp(timestamp3)
+        self.assert_(teststamper.starttime==timestamp3, 'starttime is timestamp')
+        self.assert_(teststamper.endtime==timestamp3, 'endtime is timestamp')
+        self.assert_(len(teststamper.timeranges)==1, 'old period is added to list')
+        self.assert_(teststamper.timeranges[0] == (timestamp,timestamp2), 'verify the item')
