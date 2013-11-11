@@ -4,3 +4,6 @@
 
 #Ignore virtualenv
 virtualenv*
+
+#Ignore testenv
+testenv
