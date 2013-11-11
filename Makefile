@@ -18,6 +18,7 @@ VIRTUALENV_VERSION := 1.10
 VIRTUALENV_TAR := virtualenv-$(VIRTUALENV_VERSION).tar.gz
 VIRTUALENV_BASEURL := https://pypi.python.org/packages/source/v/virtualenv
 
+
 virtualenv: virtualenv-$(VIRTUALENV_VERSION)
 	-rm $@
 	ln -s $< $@
@@ -27,9 +28,18 @@ virtualenv-$(VIRTUALENV_VERSION):
 	tar xvzf $(VIRTUALENV_TAR)
 	-rm $(VIRTUALENV_TAR)
 
-dist-clean:
+.PHONY: virtualenv-clean
+	
+virtualenv-clean:
 	-rm virtualenv $(VIRTUALENV_TAR)
 	-rm -rf virtualenv-$(VIRTUALENV_VERSION)
 
 testenv: virtualenv
 	python virtualenv/virtualenv.py testenv
+
+.PHONY: testenv-clean
+
+testenv-clean:
+	-rm -rf testenv
+	
+dist-clean: virtualenv-clean testenv-clean
