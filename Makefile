@@ -37,7 +37,9 @@ virtualenv-clean:
 
 testenv: virtualenv
 	python virtualenv/virtualenv.py testenv
-	testenv/bin/easy_install unittest-xml-reporting
+
+testenv/bin/nosetests: testenv
+	testenv/bin/pip install nosetests
 
 .PHONY: testenv-clean
 
@@ -45,6 +47,9 @@ testenv-clean:
 	-rm -rf testenv
 	
 dist-clean: virtualenv-clean testenv-clean
+	-rm nosetests.xml
 
-test: testenv src/*.py
-	testenv/bin/python src/*Test.py
+nosetests.xml: testenv/bin/nosetests
+	testenv/bin/nosetests --with-xunit src/
+
+test: nosetests.xml

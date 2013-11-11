@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# TimeStamper.py TimeStamper library
+# TimeStamperTest.py -- Unit Tests for TimeStamper
 #
 # Copyright (C) 2013 Juha Autero <jautero@iki.fi>
 #
@@ -15,7 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-class Stamper:
-    """Stamper class"""
-    def __init__(self):
-            pass
+import unittest
+import TimeStamper
+
+class TimeStamperUnitTest(unittest.TestCase):
+    """TimeStamper unit tests"""
+    def test_create(self):
+        teststamper=TimeStamper.Stamper()
