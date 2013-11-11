@@ -22,3 +22,7 @@ class TimeStamperUnitTest(unittest.TestCase):
     """TimeStamper unit tests"""
     def test_create(self):
         teststamper=TimeStamper.Stamper()
+    def test_add_timestamp(Self):
+        teststamper=TimeStamper.Stamper()
+        teststamper.stamp()
+        
