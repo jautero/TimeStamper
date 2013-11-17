@@ -16,6 +16,7 @@ class ApacheLogTimeStamper:
             data=self.parser.parse(logline)
             if data["%r"][:len(self.matchString)] == self.matchString:
                 self.datalist.append(parseTimestamp(data["%t"]))
+
 def parseTimestamp(logTimestamp):
     """convert timestamp string to unix timestamp"""
     timeTuple=apachelog.parse_date(logTimestamp)

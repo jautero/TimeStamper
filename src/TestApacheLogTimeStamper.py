@@ -20,8 +20,12 @@ class ApacheLogTimeStamperTest(unittest.TestCase):
 82.181.196.228 - - [15/Nov/2013:23:41:07 -0800] "GET /AgileToolstracker HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"
 ''')
         self.stamper.parseLog(testfile)
+        self.check_stamper()
+    def check_stamper(self):
+        self.assert_(len(self.stamper.datalist)==2, 'parser caught more than 2 lines: %d' % len(self.stamper.datalist))
         self.assert_(self.stamper.datalist[0] == self.testtimestamp1, "First data is not %s: %s" % (self.testtimestamp1,self.stamper.datalist[0]))
         self.assert_(self.stamper.datalist[1] == self.testtimestamp2, "Second data is not %s: %s" % (self.testtimestamp2, self.stamper.datalist[1]))
+
     def test_targetfilter(self):
         testfile=StringIO.StringIO('''208.115.111.66 - - [15/Nov/2013:01:27:14 -0800] "GET /LoremNSA/LoremNSA.php/Counter%20Terrorism%20Security/HIC HTTP/1.1" 200 12356 "-" "Mozilla/5.0 (compatible; Ezooms/1.0; ezooms.bot@gmail.com)" 
 208.115.111.66 - - [15/Nov/2013:01:27:44 -0800] "GET /wiki/HIDO/Fuckspores?action=edit&restore=diff:1275486554:1275483372:&preview=y HTTP/1.1" 200 2507 "-" "Mozilla/5.0 (compatible; Ezooms/1.0; ezooms.bot@gmail.com)" 
@@ -30,9 +34,8 @@ class ApacheLogTimeStamperTest(unittest.TestCase):
 82.181.196.228 - - [15/Nov/2013:23:41:07 -0800] "GET /AgileToolstracker HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"
 ''')
         self.stamper.parseLog(testfile)
-        self.assert_(len(self.stamper.datalist)==2, 'parser caught more than 2 lines: %d' % len(self.stamper.datalist))
-        self.assert_(self.stamper.datalist[0] == self.testtimestamp1, "First data is not %s: %s" % (self.testtimestamp1,self.stamper.datalist[0]))
-        self.assert_(self.stamper.datalist[1] == self.testtimestamp2, "Second data is not %s: %s" % (self.testtimestamp2, self.stamper.datalist[1]))
+        self.check_stamper()
+    
 
 class ApacheLogTimestampParserTest(unittest.TestCase):
     def test_zero(self):
