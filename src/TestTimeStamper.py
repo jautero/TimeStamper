@@ -14,54 +14,76 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest, time
+import unittest, time, StringIO
 import TimeStamper
 
 class TimeStamperUnitTest(unittest.TestCase):
     """TimeStamper unit tests"""
-    def test_create(self):
-        teststamper=TimeStamper.Stamper()
+    testlist=[1000,1100,1200,1300,3200,3250,5500,6000]
+    def setUp(self):
+        self.teststamper=TimeStamper.Stamper()
+
     def test_addtimestamp(self):
-        teststamper=TimeStamper.Stamper()
         timestamp=time.time()
-        teststamper.addStamp(timestamp)
-        self.assert_(teststamper.starttime==timestamp, 'starttime is timestamp')
-        self.assert_(teststamper.endtime==timestamp, 'endtime is timestamp')
+        self.teststamper.addStamp(timestamp)
+        self.assert_(self.teststamper.starttime==timestamp, 'starttime is timestamp')
+        self.assert_(self.teststamper.endtime==timestamp, 'endtime is timestamp')
     
     def test_periodupdate(self):
-        teststamper=TimeStamper.Stamper()
         timestamp=10
-        teststamper.addStamp(timestamp)
-        self.assert_(teststamper.starttime==timestamp, 'starttime is timestamp')
-        self.assert_(teststamper.endtime==timestamp, 'endtime is timestamp')
+        self.teststamper.addStamp(timestamp)
+        self.assert_(self.teststamper.starttime==timestamp, 'starttime is timestamp')
+        self.assert_(self.teststamper.endtime==timestamp, 'endtime is timestamp')
         timestamp2=20
-        teststamper.addStamp(timestamp2)
-        self.assert_(teststamper.starttime==timestamp, 'starttime is not updated')
-        self.assert_(teststamper.endtime==timestamp2, 'endtime is timestamp')
+        self.teststamper.addStamp(timestamp2)
+        self.assert_(self.teststamper.starttime==timestamp, 'starttime is not updated')
+        self.assert_(self.teststamper.endtime==timestamp2, 'endtime is timestamp')
         timestamp2=30
-        teststamper.addStamp(timestamp2)
-        self.assert_(teststamper.starttime==timestamp, 'starttime is not updated')
-        self.assert_(teststamper.endtime==timestamp2, 'endtime is timestamp')
+        self.teststamper.addStamp(timestamp2)
+        self.assert_(self.teststamper.starttime==timestamp, 'starttime is not updated')
+        self.assert_(self.teststamper.endtime==timestamp2, 'endtime is timestamp')
 
     def test_createperiod(self):
-        teststamper=TimeStamper.Stamper()
         timestamp=10
-        teststamper.addStamp(timestamp)
-        self.assert_(teststamper.starttime==timestamp, 'starttime is timestamp')
-        self.assert_(teststamper.endtime==timestamp, 'endtime is timestamp')
+        self.teststamper.addStamp(timestamp)
+        self.assert_(self.teststamper.starttime==timestamp, 'starttime is timestamp')
+        self.assert_(self.teststamper.endtime==timestamp, 'endtime is timestamp')
         timestamp2=20
-        teststamper.addStamp(timestamp2)
-        self.assert_(teststamper.starttime==timestamp, 'starttime is not updated')
-        self.assert_(teststamper.endtime==timestamp2, 'endtime is timestamp')
+        self.teststamper.addStamp(timestamp2)
+        self.assert_(self.teststamper.starttime==timestamp, 'starttime is not updated')
+        self.assert_(self.teststamper.endtime==timestamp2, 'endtime is timestamp')
         timestamp3=4000
-        teststamper.addStamp(timestamp3)
-        self.assert_(teststamper.starttime==timestamp3, 'starttime is timestamp')
-        self.assert_(teststamper.endtime==timestamp3, 'endtime is timestamp')
-        self.assert_(len(teststamper.timeranges)==1, 'old period is added to list')
-        self.assert_(teststamper.timeranges[0] == (timestamp,timestamp2), 'verify the item')
+        self.teststamper.addStamp(timestamp3)
+        self.assert_(self.teststamper.starttime==timestamp3, 'starttime is timestamp')
+        self.assert_(self.teststamper.endtime==timestamp3, 'endtime is timestamp')
+        self.assert_(len(self.teststamper.timeranges)==1, 'old period is added to list')
+        self.assert_(self.teststamper.timeranges[0] == (timestamp,timestamp2), 'verify the item')
+
     def test_addstamplist(self):
-        teststamper=TimeStamper.Stamper()
-        teststamper.addStamps([1000,1100,1200,1300,3200,3250,5500,6000])
-        self.assert_(teststamper.starttime == 5500, 'current range is the last timestamps')
-        self.assert_(teststamper.endtime == 6000, 'current range is the last timestamps')
-        self.assert_(teststamper.timeranges == [(1000,1300),(3200,3250)], 'rest of the ranges are in list')
+        self.teststamper.addStamps(self.testlist)
+        self.verify_aftertestlist()
+        
+    def verify_aftertestlist(self):
+        self.assert_(self.teststamper.starttime == 5500, 'TimeStamper.starttime is not 5500: %d' % self.teststamper.starttime)
+        self.assert_(self.teststamper.endtime == 6000, 'TimeStamper.endtime is not 6000: %d' % self.teststamper.endtime)
+        self.assert_(self.teststamper.timeranges == [(1000,1300),(3200,3250)], 'timeranges are not (1000,1300) and (3200,3250): %s' % self.teststamper.timeranges)
+        
+    def test_addstampiterator(self):
+        self.teststamper.addStamps((x for x in self.testlist))
+        self.verify_aftertestlist()
+    
+    def test_readstampsfile(self):
+        testfile=StringIO.StringIO()
+        for stamp in self.testlist:
+            testfile.write("%d\n" % stamp)
+        testfile.seek(0)
+        self.teststamper.readfile(testfile)
+        self.verify_aftertestlist()
+        
+    def test_readstampsfilefilter(self):
+        testfile=StringIO.StringIO()
+        for stamp in self.testlist:
+            testfile.write("%s\n" % time.ctime(stamp))
+        testfile.seek(0)
+        self.teststamper.readfile(testfile,lambda x:time.mktime(time.strptime(x.strip())))
+        self.verify_aftertestlist()

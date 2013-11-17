@@ -38,3 +38,6 @@ class Stamper:
     def addStamps(self,stampiterator):
         for stamp in stampiterator:
             self.addStamp(stamp)
+    def readfile(self,file,filter=int):
+        self.addStamps((filter(line) for line in file.readlines()))
+
