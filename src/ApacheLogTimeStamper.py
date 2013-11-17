@@ -1,21 +1,44 @@
+#!/usr/bin/env python
 # ApacheLogTimeStamper.py
 #
 # Parse gets for given URL and use them to generate timestamps.
 #
-import apachelog, datetime
+# Copyright (C) 2013 Juha Autero <jautero@iki.fi>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+import apachelog, datetime, TimeStamper
 
 class ApacheLogTimeStamper:
     def __init__(self,gettarget,logformat):
         self.parser=apachelog.parser(logformat)
         self.matchString="GET %s"%gettarget
-        self.datalist=[]
+        self.stamper=TimeStamper.Stamper()
 
     def parseLog(self,logfile):
         """Parse logfile"""
-        for logline in logfile:
-            data=self.parser.parse(logline)
-            if data["%r"][:len(self.matchString)] == self.matchString:
-                self.datalist.append(parseTimestamp(data["%t"]))
+        self.stamper.readfile(logfile,self.logfilter,self.logselector)
+
+    def logfilter(self, logline):
+        """Filter for stamper.readfile"""
+        data=self.parser.parse(logline)
+        return parseTimestamp(data["%t"])
+
+    def logselector(self, logline):
+        """Selectior for stamper.readfile"""
+        data=self.parser.parse(logline)
+        return data["%r"][:len(self.matchString)] == self.matchString
 
 def parseTimestamp(logTimestamp):
     """convert timestamp string to unix timestamp"""
@@ -34,8 +57,23 @@ def parseTimestamp(logTimestamp):
     timeDelta=(resultDate-datetime.datetime(1970,1,1))
     return timeDelta.days*86400+timeDelta.seconds
 
-def main():
-    pass
+def main(argc,argv):
+    if (argc>2):
+        format=apachelog.formats[argv[2]]
+    else:
+        format=apachelog.formats["extended"]
+    if (argc>1):
+        file=file(argv[1])
+    else:
+        file=sys.stdin
+    stamper=ApacheLogTimeStamper(argv[0],format)
+    stamper.readfile(file)
     
 if __name__ == '__main__':
-    main()
+    import sys, os.path
+    argc=len(sys.argv)-1
+    if argc<1 or argc>3:
+        print >>sys.stderr, "Usage:"
+        print >>sys.stderr, "\t%s <getpath> [ <file> [ <format> ] ]" % os.path.basename(sys.argv[0])
+        sys.exit(1)
+    main(argc,sys.argv[1:])

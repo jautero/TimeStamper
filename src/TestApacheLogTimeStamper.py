@@ -1,7 +1,21 @@
 # TestApacheLogTimeStamper.py
 #
-# Parse gets for given URL and use them to generate timestamps.
+# Test ApacheLogTimeStamper.py
 #
+# Copyright (C) 2013 Juha Autero <jautero@iki.fi>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import unittest, apachelog, StringIO
 import ApacheLogTimeStamper
 
@@ -22,9 +36,9 @@ class ApacheLogTimeStamperTest(unittest.TestCase):
         self.stamper.parseLog(testfile)
         self.check_stamper()
     def check_stamper(self):
-        self.assert_(len(self.stamper.datalist)==2, 'parser caught more than 2 lines: %d' % len(self.stamper.datalist))
-        self.assert_(self.stamper.datalist[0] == self.testtimestamp1, "First data is not %s: %s" % (self.testtimestamp1,self.stamper.datalist[0]))
-        self.assert_(self.stamper.datalist[1] == self.testtimestamp2, "Second data is not %s: %s" % (self.testtimestamp2, self.stamper.datalist[1]))
+        self.assert_(len(self.stamper.stamper.timeranges)==0, 'stamper.stamper.timeranges not empty: %d' % len(self.stamper.stamper.timeranges))
+        self.assert_(self.stamper.stamper.starttime == self.testtimestamp1, "starttime is not %s: %s" % (self.testtimestamp1,self.stamper.stamper.starttime))
+        self.assert_(self.stamper.stamper.endtime == self.testtimestamp2, "endtime is not %s: %s" % (self.testtimestamp2, self.stamper.stamper.endtime))
 
     def test_targetfilter(self):
         testfile=StringIO.StringIO('''208.115.111.66 - - [15/Nov/2013:01:27:14 -0800] "GET /LoremNSA/LoremNSA.php/Counter%20Terrorism%20Security/HIC HTTP/1.1" 200 12356 "-" "Mozilla/5.0 (compatible; Ezooms/1.0; ezooms.bot@gmail.com)" 
@@ -35,7 +49,6 @@ class ApacheLogTimeStamperTest(unittest.TestCase):
 ''')
         self.stamper.parseLog(testfile)
         self.check_stamper()
-    
 
 class ApacheLogTimestampParserTest(unittest.TestCase):
     def test_zero(self):
@@ -46,3 +59,29 @@ class ApacheLogTimestampParserTest(unittest.TestCase):
     def test_timezone(self):
         parsedStamp=ApacheLogTimeStamper.parseTimestamp("[01/Jan/1970:02:01:00 +0200]")
         self.assert_(60==parsedStamp, 'Minute after epoch in Finland is not 60, but: %d' % parsedStamp)
+
+class ApacheLogTimeStamperRangeTest(unittest.TestCase):
+    """docstring for ApacheLogTimeStamperTest"""
+    def __init__(self, arg):
+        super(ApacheLogTimeStamperRangeTest, self).__init__(arg)
+        self.testfile=StringIO.StringIO('''82.181.196.220 - - [15/Nov/2013:23:40:07 -0800] "GET /teststamper HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"
+82.181.196.220 - - [15/Nov/2013:23:41:07 -0800] "GET /teststamper HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"
+82.181.196.220 - - [15/Nov/2013:23:41:37 -0800] "GET /teststamper HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"
+82.181.196.220 - - [15/Nov/2013:23:42:00 -0800] "GET /teststamper HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"
+82.181.196.220 - - [16/Nov/2013:02:00:00 -0800] "GET /teststamper HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"
+82.181.196.220 - - [16/Nov/2013:02:15:00 -0800] "GET /teststamper HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"''')
+
+    def setUp(self):
+        self.testfile.seek(0)
+        self.stamper=ApacheLogTimeStamper.ApacheLogTimeStamper("/teststamper",apachelog.formats["extended"])
+
+    def test_timeranges(self):
+        self.stamper.parseLog(self.testfile)
+        self.assert_(len(self.stamper.stamper.timeranges)==1, 'Number of timeranges is not 1: %s' % len(self.stamper.stamper.timeranges))
+        timerange=self.stamper.stamper.timeranges[0]
+        testrange=(ApacheLogTimeStamper.parseTimestamp('[15/Nov/2013:23:40:07 -0800]'),ApacheLogTimeStamper.parseTimestamp('[15/Nov/2013:23:42:00 -0800]'))
+        self.assert_(timerange==testrange, 'Incorrect timerange: %s (not %s)' % (timerange,testrange))
+        teststarttime=ApacheLogTimeStamper.parseTimestamp('[16/Nov/2013:02:00:00 -0800]')
+        testendtime=ApacheLogTimeStamper.parseTimestamp('[16/Nov/2013:02:15:00 -0800]')
+        self.assert_(self.stamper.stamper.starttime == teststarttime, 'stamper.starttime is not %d: %d' % (teststarttime,self.stamper.stamper.starttime))
+        self.assert_(self.stamper.stamper.endtime == testendtime, 'stamper.endtime is not %d: %d' % (testendtime,self.stamper.stamper.endtime))
