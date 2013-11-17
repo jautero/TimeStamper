@@ -8,8 +8,8 @@ import ApacheLogTimeStamper
 class ApacheLogTimeStamperTest(unittest.TestCase):
     testtarget="/AgileToolstracker"
     testformat=apachelog.formats["extended"]
-    testtimestamp1='15/Nov/2013:23:40:07 -0800'
-    testtimestamp2='15/Nov/2013:23:41:07 -0800'
+    testtimestamp1=ApacheLogTimeStamper.parseTimestamp('[15/Nov/2013:23:40:07 -0800]')
+    testtimestamp2=ApacheLogTimeStamper.parseTimestamp('[15/Nov/2013:23:41:07 -0800]')
     def setUp(self):
         self.stamper=ApacheLogTimeStamper.ApacheLogTimeStamper(self.testtarget,self.testformat)
     def test_created(self):
@@ -33,3 +33,13 @@ class ApacheLogTimeStamperTest(unittest.TestCase):
         self.assert_(len(self.stamper.datalist)==2, 'parser caught more than 2 lines: %d' % len(self.stamper.datalist))
         self.assert_(self.stamper.datalist[0] == self.testtimestamp1, "First data is not %s: %s" % (self.testtimestamp1,self.stamper.datalist[0]))
         self.assert_(self.stamper.datalist[1] == self.testtimestamp2, "Second data is not %s: %s" % (self.testtimestamp2, self.stamper.datalist[1]))
+
+class ApacheLogTimestampParserTest(unittest.TestCase):
+    def test_zero(self):
+        self.assert_(0==ApacheLogTimeStamper.parseTimestamp("[01/Jan/1970:00:00:00 +0000]"), 'Start of epoch is not 0: %d' % ApacheLogTimeStamper.parseTimestamp("[01/Jan/1970:00:00:00:00 +0000]"))
+    def test_one(self):
+        parsedStamp=ApacheLogTimeStamper.parseTimestamp("[01/Jan/1970:00:00:01 +0000]")
+        self.assert_(1==parsedStamp, 'Second after epoch has not timestamp 1, but %d' % parsedStamp)
+    def test_timezone(self):
+        parsedStamp=ApacheLogTimeStamper.parseTimestamp("[01/Jan/1970:02:01:00 +0200]")
+        self.assert_(60==parsedStamp, 'Minute after epoch in Finland is not 60, but: %d' % parsedStamp)
