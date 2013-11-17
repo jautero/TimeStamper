@@ -6,14 +6,17 @@ import apachelog
 
 class ApacheLogTimeStamper:
     def __init__(self,gettarget,logformat):
-        self.gettarget=gettarget
-        self.logformat=logformat
-    def parseLog(self,logline):
+        self.parser=apachelog.parser(logformat)
+        self.matchString="GET %s"%gettarget
+        self.datalist=[]
+
+    def parseLog(self,logfile):
         """Parse logfile"""
-        parser=apachelog.parser(self.logformat)
-        self.data=parser.parse(logline)
-    
-        
+        for logline in logfile:
+            data=self.parser.parse(logline)
+            if data["%r"][:len(self.matchString)] == self.matchString:
+                self.datalist.append(data["%t"][1:-1])
+
 def main():
     pass
     
