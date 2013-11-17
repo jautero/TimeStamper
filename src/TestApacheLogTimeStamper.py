@@ -8,7 +8,11 @@ import ApacheLogTimeStamper
 class ApacheLogTimeStamperTest(unittest.TestCase):
     testtarget="/testtarget"
     testformat=apachelog.formats["extended"]
-    def test_create(self):
-        stamper=ApacheLogTimeStamper.ApacheLogTimeStamper(self.testtarget,self.testformat)
-        self.assert_(stamper.gettarget==self.testtarget, 'stamper.gettarget is not %s: %s ' % (self.testtarget,stamper.gettarget))
-        self.assert_(stamper.format==self.testformat, 'stamper.format is not %s: %s' % (self.testformat,stamper.format))
+    def setUp(self):
+        self.stamper=ApacheLogTimeStamper.ApacheLogTimeStamper(self.testtarget,self.testformat)
+    def test_created(self):
+        self.assert_(self.stamper.gettarget==self.testtarget, 'self.stamper.gettarget is not %s: %s ' % (self.testtarget,self.stamper.gettarget))
+        self.assert_(self.stamper.logformat==self.testformat, 'self.stamper.logformat is not %s: %s' % (self.testformat,self.stamper.logformat))
+    def test_parselog(self):
+        self.stamper.parseLog('82.181.196.220 - - [15/Nov/2013:23:40:07 -0800] "GET /AgileToolstracker HTTP/1.1" 404 1018 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.48 Safari/537.36"')
+        self.assert_(self.stamper.data['%h'], '82.181.196.220')
