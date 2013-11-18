@@ -38,5 +38,10 @@ class Stamper:
     def addStamps(self,stampiterator):
         for stamp in stampiterator:
             self.addStamp(stamp)
+    def closeStamper(self):
+        if self.starttime != None and self.starttime != self.endtime:
+            self.timeranges.append((self.starttime,self.endtime))
+        self.starttime=None
+        self.endtime=None
     def readfile(self,file,processor=int,selector=lambda x:True):
         self.addStamps((processor(line) for line in file.readlines() if selector(line)))

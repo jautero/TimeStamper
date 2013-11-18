@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-import apachelog, datetime, TimeStamper
+import apachelog, datetime, TimeStamper, time
 
 class ApacheLogTimeStamper:
     def __init__(self,gettarget,logformat):
@@ -29,6 +29,11 @@ class ApacheLogTimeStamper:
     def parseLog(self,logfile):
         """Parse logfile"""
         self.stamper.readfile(logfile,self.logfilter,self.logselector)
+        
+    def getTimeranges(self):
+        self.stamper.closeStamper()
+        return self.stamper.timeranges
+    
 
     def logfilter(self, logline):
         """Filter for stamper.readfile"""
@@ -63,11 +68,17 @@ def main(argc,argv):
     else:
         format=apachelog.formats["extended"]
     if (argc>1):
-        file=file(argv[1])
+        fh=file(argv[1])
     else:
-        file=sys.stdin
+        fh=sys.stdin
     stamper=ApacheLogTimeStamper(argv[0],format)
-    stamper.readfile(file)
+    stamper.parseLog(fh)
+    totaltime=0
+    for timerange in stamper.getTimeranges():
+        timediff=timerange[1]-timerange[0]
+        totaltime += timediff
+        print time.ctime(timerange[0]),timediff
+    print totaltime
     
 if __name__ == '__main__':
     import sys, os.path

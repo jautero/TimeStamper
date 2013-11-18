@@ -85,3 +85,11 @@ class ApacheLogTimeStamperRangeTest(unittest.TestCase):
         testendtime=ApacheLogTimeStamper.parseTimestamp('[16/Nov/2013:02:15:00 -0800]')
         self.assert_(self.stamper.stamper.starttime == teststarttime, 'stamper.starttime is not %d: %d' % (teststarttime,self.stamper.stamper.starttime))
         self.assert_(self.stamper.stamper.endtime == testendtime, 'stamper.endtime is not %d: %d' % (testendtime,self.stamper.stamper.endtime))
+    def test_getTimeranges(self):
+        self.stamper.parseLog(self.testfile)
+        timeranges=self.stamper.getTimeranges()
+        self.assert_(len(timeranges)==2, 'Number of timeranges is not 2: %d' % len(timeranges))
+        testrange=(ApacheLogTimeStamper.parseTimestamp('[15/Nov/2013:23:40:07 -0800]'),ApacheLogTimeStamper.parseTimestamp('[15/Nov/2013:23:42:00 -0800]'))
+        self.assert_(timeranges[0]==testrange, 'First timerange is not %s: %s' % (testrange,timeranges[0]))
+        testrange=(ApacheLogTimeStamper.parseTimestamp('[16/Nov/2013:02:00:00 -0800]'),ApacheLogTimeStamper.parseTimestamp('[16/Nov/2013:02:15:00 -0800]'))
+        self.assert_(timeranges[1]==testrange, 'Second timerange is not %s: %s' % (testrange,timeranges[1]))

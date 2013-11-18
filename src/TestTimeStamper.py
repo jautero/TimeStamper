@@ -87,3 +87,9 @@ class TimeStamperUnitTest(unittest.TestCase):
         testfile.seek(0)
         self.teststamper.readfile(testfile,lambda x:time.mktime(time.strptime(x.strip())))
         self.verify_aftertestlist()
+    def test_closeStamper(self):
+        self.teststamper.addStamps(self.testlist)
+        self.teststamper.closeStamper()
+        self.assert_(self.teststamper.starttime == None, 'TimeStamper.starttime is not None: %s' % self.teststamper.starttime)
+        self.assert_(self.teststamper.endtime == None, 'TimeStamper.endtime is not None: %s' % self.teststamper.endtime)
+        self.assert_(self.teststamper.timeranges == [(1000,1300),(3200,3250),(5500,6000)], 'timeranges does not have all ranges (1000,1300), (3200,3250) and (5500,6000): %s' % self.teststamper.timeranges)
