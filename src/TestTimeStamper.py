@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest, time, StringIO
+import unittest, time, StringIO, json
 import TimeStamper
 
 class TimeStamperUnitTest(unittest.TestCase):
@@ -93,3 +93,16 @@ class TimeStamperUnitTest(unittest.TestCase):
         self.assert_(self.teststamper.starttime == None, 'TimeStamper.starttime is not None: %s' % self.teststamper.starttime)
         self.assert_(self.teststamper.endtime == None, 'TimeStamper.endtime is not None: %s' % self.teststamper.endtime)
         self.assert_(self.teststamper.timeranges == [(1000,1300),(3200,3250),(5500,6000)], 'timeranges does not have all ranges (1000,1300), (3200,3250) and (5500,6000): %s' % self.teststamper.timeranges)
+        
+    def test_storeStamper(self):
+        storefile=StringIO.StringIO()
+        self.teststamper.addStamps(self.testlist)
+        self.teststamper.store(storefile)
+        self.assert_(json.loads(storefile.getvalue())=={"timeranges":[[1000,1300],[3200,3250]],"starttime":5500,"endtime":6000}, 'Stored json was not {timeranges:[[1000,1300],[3200,3250]],starttime:5500,endtime:6000}: %s' % storefile.getvalue())
+    
+    def test_loadStamper(self):
+        storefile=StringIO.StringIO(json.dumps({"timeranges":[[1000,1300],[3200,3250]],"starttime":5500,"endtime":6000}))
+        self.teststamper.load(storefile)
+        self.assert_(self.teststamper.starttime == 5500 , 'TimeStamper.starttime is not 5500: %d' % self.teststamper.starttime)
+        self.assert_(self.teststamper.endtime == 6000, 'TimeStamper.endtime is not 6000: %d' % self.teststamper.endtime)
+        self.assert_(self.teststamper.timeranges == [(1000,1300),(3200,3250)], 'TimeStamper.timeranges is not [(1000,1300),(3200,3250)]: %s ' % self.teststamper.timeranges)

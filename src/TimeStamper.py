@@ -14,7 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import time
+import time, json
 
 class Stamper:
     """Stamper class"""
@@ -43,5 +43,14 @@ class Stamper:
             self.timeranges.append((self.starttime,self.endtime))
         self.starttime=None
         self.endtime=None
+    def store(self,storefile):
+        storedata={"timeranges": self.timeranges, "starttime": self.starttime, "endtime": self.endtime}
+        storefile.write(json.dumps(storedata))
+    def load(self, storefile):
+        storedata=json.loads(storefile.read())
+        self.timeranges=[(timerange[0],timerange[1]) for timerange in storedata["timeranges"]]
+        self.starttime=storedata["starttime"]
+        self.endtime=storedata["endtime"]
+    
     def readfile(self,file,processor=int,selector=lambda x:True):
         self.addStamps((processor(line) for line in file.readlines() if selector(line)))
