@@ -20,8 +20,6 @@
 
 import apachelog, datetime, TimeStamper, time, os
 
-stamperstore=os.path.expand("~/Dropbox/apachelog.json")
-
 class ApacheLogTimeStamper:
     def __init__(self,gettarget,logformat):
         self.parser=apachelog.parser(logformat)
@@ -74,18 +72,12 @@ def main(argc,argv):
     else:
         fh=sys.stdin
     stamper=ApacheLogTimeStamper(argv[0],format)
-    storefile=file(stamperstore)
-    stamper.stamper.load(storefile)
-    storefile.close()
     stamper.parseLog(fh)
     totaltime=0
     for timerange in stamper.getTimeranges():
         timediff=timerange[1]-timerange[0]
         totaltime += timediff
         print time.ctime(timerange[0]),timediff
-    storefile=file(stamperstore,"w")
-    stamper.stamper.store(storefile)
-    storefile.close()
     print totaltime
     
 if __name__ == '__main__':
