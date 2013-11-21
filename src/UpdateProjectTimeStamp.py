@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-import os.path, ApacheLogTimeStamper, apachelog,datetime
+import os.path, ApacheLogTimeStamper, apachelog, datetime, sys
 
 GetPath = "/TimeStampers/%s"
 StoreFile = os.path.expanduser("~/Dropbox/TimeStampers/%s.json")
@@ -34,22 +34,25 @@ def load_parser(name):
         pass
     return parser
 
-def get_yesterdays_accesslog():
-    logfilename=(datetime.date.today()-datetime.timedelta(1)).strftime("access.log.%Y-%m-%d")
-    remotepath=os.path.join(accesslogpath,logfilename)
-    os.system("scp %s access.log" % remotepath)
+def get_access_log_name():
+    remotepath=os.path.join(accesslogpath,"access.log.0")
+    return remotepath
+    
+def fetch_logfile(remotepath):
+    scp_result=os.system("scp %s access.log" % remotepath)
+    if scp_result != 0:
+        sys.exit(scp_result)
     return file("access.log")
     
 def store_parser(name,parser):
-    parser.stamper.store(file(StoreFile%name),"w")
+    parser.stamper.store(file((StoreFile%name),"w"))
 
 def update_project(projectname):
     timestampparser=load_parser(projectname)
-    logFileHandle=fetch_logfile(get_yesterdays_access_log())
+    logFileHandle=fetch_logfile(get_access_log_name())
     timestampparser.parseLog(logFileHandle)
     store_parser(projectname,timestampparser)
 
 if __name__ == '__main__':
-    import sys
     if len(sys.argv)==2:
         update_project(sys.argv[1])
