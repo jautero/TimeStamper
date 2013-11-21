@@ -18,6 +18,7 @@ VIRTUALENV_VERSION := 1.10
 VIRTUALENV_TAR := virtualenv-$(VIRTUALENV_VERSION).tar.gz
 VIRTUALENV_BASEURL := https://pypi.python.org/packages/source/v/virtualenv
 APACHELOG := testenv/lib/python2.7/site-packages/apachelog.py
+PIPLOGFILE := pip.log
 
 all: test
 
@@ -40,10 +41,10 @@ testenv: virtualenv
 	python virtualenv/virtualenv.py testenv
 
 testenv/bin/nosetests: testenv
-	testenv/bin/pip install nosetests
+	testenv/bin/pip install nosetests --log $(PIPLOGFILE)
 	
 $(APACHELOG): testenv
-	testenv/bin/pip install apachelog
+	testenv/bin/pip install apachelog --log $(PIPLOGFILE)
 
 .PHONY: testenv-clean
 
