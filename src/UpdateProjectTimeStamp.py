@@ -29,9 +29,9 @@ def load_parser(name):
     try:
         storefile=file(StoreFile%name)
         parser.stamper.load(storefile)
+        storefile.close()
     except:
         pass
-    storefile.close()
     return parser
 
 def get_yesterdays_accesslog():
