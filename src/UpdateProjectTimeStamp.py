@@ -26,8 +26,12 @@ logformat=apachelog.formats["extended"]
 
 def load_parser(name):
     parser=ApacheLogTimeStamper.ApacheLogTimeStamper(GetPath%name,logformat)
-    storefile=file(StoreFile%name)
-    parser.stamper.load(storefile)
+    try:
+        storefile=file(StoreFile%name)
+    except:
+        pass
+    if storefile:
+        parser.stamper.load(storefile)
     storefile.close()
     return parser
 
