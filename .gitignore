@@ -10,3 +10,6 @@ testenv
 
 #ignore test results
 nosetests.xml
+#ignore log files
+*.log
+

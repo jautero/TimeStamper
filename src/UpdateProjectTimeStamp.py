@@ -28,10 +28,9 @@ def load_parser(name):
     parser=ApacheLogTimeStamper.ApacheLogTimeStamper(GetPath%name,logformat)
     try:
         storefile=file(StoreFile%name)
+        parser.stamper.load(storefile)
     except:
         pass
-    if storefile:
-        parser.stamper.load(storefile)
     storefile.close()
     return parser
 
