@@ -41,7 +41,7 @@ testenv: virtualenv
 	python virtualenv/virtualenv.py testenv
 
 testenv/bin/nosetests: testenv
-	testenv/bin/pip install nosetests --log $(PIPLOGFILE)
+	testenv/bin/pip install nose --log $(PIPLOGFILE)
 	
 $(APACHELOG): testenv
 	testenv/bin/pip install apachelog --log $(PIPLOGFILE)
