@@ -46,13 +46,15 @@ testenv/bin/nosetests: testenv
 $(APACHELOG): testenv
 	testenv/bin/pip install apachelog --log $(PIPLOGFILE)
 
-.PHONY: testenv-clean
+.PHONY: testenv-clean dist-clean clean
 
+clean:
+	-rm nosetests.xml
+	
 testenv-clean:
 	-rm -rf testenv
 	
-dist-clean: virtualenv-clean testenv-clean
-	-rm nosetests.xml
+dist-clean: virtualenv-clean testenv-clean clean
 
 nosetests.xml: testenv/bin/nosetests $(APACHELOG) src/*.py
 	testenv/bin/nosetests --with-xunit src/
